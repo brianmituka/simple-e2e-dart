@@ -58,7 +58,7 @@ class Util {
     return Uint8List.fromList(base64Decode(base64));
   }
 
-  static RSAPublicKey parseFrontlinePublicKey(String pem) {
+  RSAPublicKey parseFrontlinePublicKey(String pem) {
     if (pem == null) {
       throw ArgumentError('Argument must not be null');
     }
@@ -70,12 +70,13 @@ class Util {
   static RSAPublicKey rsaPublicKeyFromDERBytes(Uint8List bytes) {
     var asn1Parser = ASN1Parser(bytes);
     var topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
-    var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
+    print(topLevelSeq.toString());
+    // var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
 
-    var publicKeyAsn = ASN1Parser(publicKeyBitString.stringValues);
-    ASN1Sequence publicKeySeq = publicKeyAsn.nextObject();
-    var modulus = publicKeySeq.elements[0] as ASN1Integer;
-    var exponent = publicKeySeq.elements[1] as ASN1Integer;
+    // var publicKeyAsn = ASN1Parser(publicKeyBitString.stringValues);
+    // ASN1Sequence publicKeySeq = publicKeyAsn.nextObject();
+    var modulus = topLevelSeq.elements[0] as ASN1Integer;
+    var exponent = topLevelSeq.elements[1] as ASN1Integer;
 
     var rsaPublicKey = RSAPublicKey(modulus.integer, exponent.integer);
 
@@ -89,5 +90,9 @@ class Util {
       chunked.add(s.substring(i, end));
     }
     return chunked;
+  }
+
+  String characterCodeToUtf8(String characterCode) {
+    return base64.encode(characterCode.codeUnits);
   }
 }
