@@ -23,63 +23,15 @@ class Util {
     return secureRandom;
   }
 
-  String encodePublicKeyToFrontlineFormat(RSAPublicKey publicKey) {
-    var algorithmSeq = ASN1Sequence();
-    var paramsAsn1Obj = ASN1Object.fromBytes(Uint8List.fromList([0x5, 0x0]));
-    algorithmSeq.add(ASN1ObjectIdentifier.fromName('rsaEncryption'));
-    algorithmSeq.add(paramsAsn1Obj);
-
-    var publicKeySeq = ASN1Sequence();
-    publicKeySeq.add(ASN1Integer(publicKey.modulus));
-    publicKeySeq.add(ASN1Integer(publicKey.exponent));
-    var publicKeySeqBitString =
-        ASN1BitString(stringValues: Uint8List.fromList(publicKeySeq.encode()));
-
-    var topLevelSeq = ASN1Sequence();
-    topLevelSeq.add(algorithmSeq);
-    topLevelSeq.add(publicKeySeqBitString);
-    var dataBase64 = base64.encode(topLevelSeq.encode());
-    var chunks = chunk(dataBase64, 64);
-
-    return '$BEGIN_PUBLIC_KEY\n${chunks.join('\n')}\n$END_PUBLIC_KEY';
-  }
-
-  static Uint8List getBytesFromFrontlinePEMString(String pem) {
-    var lines = LineSplitter.split(pem)
-        .map((line) => line.trim())
-        .where((line) => line.isNotEmpty)
-        .toList();
-    if (lines.length < 2 ||
-        !lines.first.startsWith(BEGIN_PUBLIC_KEY) ||
-        !lines.last.startsWith(END_PUBLIC_KEY)) {
-      throw ArgumentError("Not a valid Frontline Public Key");
-    }
-    var base64 = lines.sublist(1, lines.length - 1).join('');
-    return Uint8List.fromList(base64Decode(base64));
-  }
-
-  RSAPublicKey parseFrontlinePublicKey(String pem) {
-    if (pem == null) {
-      throw ArgumentError('Argument must not be null');
-    }
-    var bytes = getBytesFromFrontlinePEMString(pem);
-    return rsaPublicKeyFromDERBytes(bytes);
-  }
-
-//SEE https://tls.mbed.org/kb/cryptography/asn1-key-structures-in-der-and-pem
-  static RSAPublicKey rsaPublicKeyFromDERBytes(Uint8List bytes) {
-    var asn1Parser = ASN1Parser(bytes);
-    var topLevelSeq = asn1Parser.nextObject() as ASN1Sequence;
-    print(topLevelSeq.toString());
-    // var publicKeyBitString = topLevelSeq.elements[1] as ASN1BitString;
-
-    // var publicKeyAsn = ASN1Parser(publicKeyBitString.stringValues);
-    // ASN1Sequence publicKeySeq = publicKeyAsn.nextObject();
-    var modulus = topLevelSeq.elements[0] as ASN1Integer;
-    var exponent = topLevelSeq.elements[1] as ASN1Integer;
-
-    var rsaPublicKey = RSAPublicKey(modulus.integer, exponent.integer);
-
+  RSAPublicKey parsePublicKeyContentToRSAPublicKey(String publicKeyString) {
+    var publicKeyContent = publicKeyString.split("##Public##");
+    var modulus = base64.decode(publicKeyContent[0].trim());
+    var exponent = base64.decode(publicKeyContent[1].trim());
+    var finalModulus = utf8.decode(modulus) as BigInt;
+    var finalExponent = utf8.decode(exponent) as BigInt;
+    var rsaPublicKey = RSAPublicKey(finalModulus, finalExponent);
+    print("exponent $finalExponent");
+    print("modulus $finalModulus");
     return rsaPublicKey;
   }
 
@@ -90,6 +42,15 @@ class Util {
       chunked.add(s.substring(i, end));
     }
     return chunked;
+  }
+
+  static String _formatBytesAsHexString(Uint8List bytes) {
+    var result = StringBuffer();
+    for (var i = 0; i < bytes.lengthInBytes; i++) {
+      var part = bytes[i];
+      result.write('${part < 16 ? '0' : ''}${part.toRadixString(16)}');
+    }
+    return result.toString();
   }
 
   String characterCodeToUtf8(String characterCode) {
