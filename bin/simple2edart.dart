@@ -38,8 +38,6 @@ void generateKeysAndEncryptAndDecrypt() {
   final keyPair = generateRSAKeyPair(Util().generateSecureRandom());
   final publicKey = keyPair.publicKey;
   final privateKeyPem = keyPair.privateKey.toString();
-  final publicKeyPem = Util().encodePublicKeyToFrontlineFormat(publicKey);
-  stdout.writeln('Public Key $publicKeyPem');
   stdout.writeln('Private Key $privateKeyPem');
   stdout.writeln('Enter Text to Encrypt');
   final input = stdin.readLineSync();
@@ -54,19 +52,11 @@ void generateKeysAndEncryptAndDecrypt() {
 void decryptText() {}
 void encryptText() {
   stdout.writeln('Enter public key to encrypt');
-  final input = """##PUBLIC##
-MIIBCgKCAQEAhfgamqWjqAMBHf9rZRhl6mgUMAuYrv+dP02Ic9s/lrdvK2JRr0BP
-sVcnKsR2IYtfFlMraPUyzoHHs/c/yFZHZFu4aqj1d97lITZxOF3lXC7pxr29u1Ge
-W+0NILU8w5lSSwBw7LNMud8BNLnHzVzJUj/QEDmaJBeoZ+03JRSWz3GzOOcgYYfL
-wCKSs3LN2PGVjxO0vnOkStmVYTKCM612yl7pFkrnpSApHpt+/bzsMSJoXK7w0F2e
-d2vjI8b6Tut79xNfDf4XNVENWDLFlEIADXrzyzfzBnuBgG6hqdV2TQxpqS8PhlKe
-kqd4GQEYJ6+ACO3P2tV5h+tFZeF3nk1WkQIDAQAB
-##PUBLIC##""";
-  RSAPublicKey publicKey = Util().parseFrontlinePublicKey(input);
+  final newKey ='''ODM3NjM1MDQ0ODI3NzE4Mzc0ODk1Njk2MTEwOTE4NDI3NDMwMzcyMzMzNjAzMzU1OTM0MTAxMTM5MzczODA1NDkxMDg0MzYxMTI3NDIyOTk3ODc0Mjk1NzY3Nzk5MTcxMTU4MTUzOTgxMjQ3MTY5MDQxNzg1OTkyODQyMTQ1MTk0MjA5ODcxMzIyNTAyNDYxMDc2NjYwNzA5MDAyNzc3OTUyODUzMzY4NjczODAxMTU4NzMwMjI2NjkwNjA5MDU0MDQzMjk2MDY2NTExODY2MDQ1ODY4MjEzNzI0NzQwMjg0ODk0NjYxNjUxOTYzNjEwODE3MzQ5NDMwNjIwNDczMDc2MjU0ODM0MDI2OTI3Mzg0MzE4MTE1Njk2ODg5MTkxMjA4NjkyMjEyMTA4NzgwMTU0MDkzMjIwMjE0NzczMTE3ODA3Nzk0ODc2NDAyNjk4NTYzNjg5MDg2MzEyMTk0ODQ5MTYwODk4NTAxMjU2NzcwMzc5NDc0ODEyNzMyNDk1MDM4Mzg3NDUwNzYzNDcxOTY1OTY1NTY1NzYwNzIzNTQyODcyMjczNjg3OTU4NDQzNjEyNTI1MTA0NzM2NDU5MTc4NDcxNDkwMTQ1ODg4MTQ0NzY2NTA0Mjk2ODUwNjAzMzgzMDkwMTAwNTIwNzkwNzg0OTUwMDE0MjU4MTQ3MTcwMDE2MjY3MzYxNjczNjU4OTU1MDMzNTU4NDc5OTc1NjUwMDcyNDM4MTkzOTg2NzIzNTY4MjM5MTc2NTg2MDI4ODgyODM2NDY2NzEyOTM4MDI1OTIyOTY0NzQ5Nzg1MjI0NTYwNzY2Mzg1NjA4NzEzNTAwNzU4OTgxMjI1Nzg5OTMwODk0Mjc0NDM0MzQ3MTk2NTgxNTU4NTYwNjIyNDI4ODgxOTUyMzk0MTQ0ODMyNjQ0OTY4MzQ2MTE0MzE5NjIyMTY3ODg3MjU3MDY2MjAyNjc4MDQzMzkzMTAxNTE4NTczMTU0MDA3NTgxNzc0OTYzMjg0MTA5MTc1OTMxMjQyMTU4MzcwNTA1NDMwMTY3Mjg5MjExMzc4MTM0MzYxOTEzOTcxNTAxMTc0NzEwMjQ5NjA2OTQ2MDQ5ODMwMTI0OTg1MDkyMjE4MjgyNzc3MjY3MjEwNzIzNDk5MzEzNDQwOTE2NzI1ODU5NTk5NjIzMjk5ODM0MjQ2MTMyMzE0OTg1MzAxNTA1NzM5MTYyOTcxMzk0MDQyNTM0NjQ0OTE5MDM0NjU4NzIzMTY3NDgzMzUyNTc3MTc1NzA4MTg4NjMyMjY0OTY1NzM3NjQ4NTQ0NDA3Mjk3NzkzMDg0ODI4MDkzOTM5MDE4NjM3MzIwODE5NTA4NDg0NzY3MDUzOTgyNDAzMTc3NjQ0MDAzMjA2OTI0MDI2NTMyMDIyNTEwODQwNTc2MzEzNzI5MDU3NTU1MTA1OTk4MTYxNzE2NzA2NTgwOTY4Njk2MTAxODgxNTM2NDgwMTc5MDU5MTI5OTI4MTk3MjgxNzg1ODQxMjYwNDEzMDA5MTA4MzIxODcxMTI4MDgzNTI1MTA3NjkwNjgyNTA3OTAwMzYzMDExNDQyNTQwNjU4MDM3MjU4NzAyODI0NzE4NTA4NTAyNzMzNzMzNTcxODQ5MzAxNzExODczNzAz##Public##NDE1MDMx
+''';
+  final publicKey = Util().parsePublicKeyContentToRSAPublicKey(newKey);;
   stdout.writeln('Enter text to encrypt');
   final textToencrypt = stdin.readLineSync();
   final cipherText = encrypt(publicKey, textToencrypt);
-  final base64encodedcipher = Util().characterCodeToUtf8(cipherText);
   stdout.writeln('Ciphetext:: $cipherText');
-  stdout.writeln('base64Ciphetext:: $base64encodedcipher');
 }
