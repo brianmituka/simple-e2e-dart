@@ -25,10 +25,10 @@ class Util {
 
   RSAPublicKey parsePublicKeyContentToRSAPublicKey(String publicKeyString) {
     var publicKeyContent = publicKeyString.split("##Public##");
-    var modulus = base64.decode(publicKeyContent[0].trim());
-    var exponent = base64.decode(publicKeyContent[1].trim());
-    var finalModulus = utf8.decode(modulus) as BigInt;
-    var finalExponent = utf8.decode(exponent) as BigInt;
+    var modulus = utf8.decode(base64.decode(publicKeyContent[0].trim()));
+    var exponent = utf8.decode(base64.decode(publicKeyContent[1].trim()));
+    var finalModulus = BigInt.parse(modulus);
+    var finalExponent = BigInt.parse(exponent);
     var rsaPublicKey = RSAPublicKey(finalModulus, finalExponent);
     print("exponent $finalExponent");
     print("modulus $finalModulus");
