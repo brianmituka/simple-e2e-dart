@@ -10,6 +10,7 @@ dependencies:
   path: ^1.7.0
   pointycastle: ^2.0.0
   args: ^1.5.6
+  hex: ^0.1.2
  
 
 dev_dependencies:
